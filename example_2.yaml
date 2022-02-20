@@ -1,0 +1,116 @@
+---
+vars:
+  name: Site builder example 2
+  description: Build a new site with racks, devices, Interfaces, etc.
+  schema_verison: 1
+  debug: True
+  wipe: True
+  globals:
+  #used by the script as global variables
+    my_variable: my_value
+    tenant:   # optional tenant (applies to Site, Rack, Device, Circuit and Cable objects)
+
+sites:
+- name: ABC Example Site
+  physical_address: 5500 North, Freedom, TX 71776
+  slug: 
+  facility: ABC
+  status: planned
+  racks:
+  - name: A.1
+    status: planned
+    type: 2-post-frame
+    width: 19
+    u_height: 45
+    role: IDF   #!!must already exist in NetBox
+  - name: A.2
+    status: planned
+    type: 2-post-frame
+    width: 19
+    u_height: 45
+    role: IDF  #!!must already exist in NetBox
+  - name: A.3
+    status: planned
+    type: 2-post-frame
+    width: 19
+    u_height: 45
+    role: IDF  #!!must already exist in NetBox
+
+devices:
+- name: R1
+  facility: ABC
+  device_role: Router  #!!must already exist in NetBox
+  manufacturer: Cisco  #!!must already exist in NetBox
+  device_type: ISR 1111-8P
+  rack: A.2
+  position: 20
+  face: front
+  status: planned
+  interfaces:
+  - name: Gi0/0
+    type: 1000base-t  #common options: virtual, lag, 100base-tx, 1000base-t, 1000base-x-sfp, 10gbase-x-sfpp
+    lag:
+    parent:
+    mode: tagged      #tagged or access
+    untagged_vlan:    #can only be one vlan ID
+    tagged_vlans: 5,6,7     #list the vlan IDs
+    mtu: 1500
+    description: to the circuit   # this should be auto-derived
+    mgmt_only: false  #true or false
+  - name: Gi0/1
+    type: 1000base-x-sfp  #common options: virtual, lag, 100base-tx, 1000base-t, 1000base-x-sfp, 10gbase-x-sfpp
+    lag:
+    parent:
+    mode: access     #tagged or access
+    untagged_vlan:    #can only be one vlan ID
+    tagged_vlans:     #list the vlan IDs
+    mtu: 1500
+    description: hairpin   # this should be auto-derived
+    mgmt_only: false  #true or false
+  - name: Gi0/2
+    type: 1000base-x-sfp  #common options: virtual, lag, 100base-tx, 1000base-t, 1000base-x-sfp, 10gbase-x-sfpp
+    lag:
+    parent:
+    mode: access      #tagged or access
+    untagged_vlan:    #can only be one vlan ID
+    tagged_vlans:     #list the vlan IDs
+    mtu: 1500
+    description: hairpin   # this should be auto-derived
+    mgmt_only: false  #true or false
+
+circuits:
+# service provider supported "circuits"
+# for a point-to-point circuit specify only a_facility & z_facility
+# for a multipoint (ie MPLS/Internet) specify only a_facility & z_provider_net
+- cid: 11.YYYY.123456..SW      #put circuit ID here
+  provider: Level 3 #!!must already exist in NetBox
+  type: MPLS        #!!must already exist in NetBox
+  status: planned       #active, planned, provisioning
+  commit_rate: 1000000 #committed bandwidth of the circuit
+  port_speed: 1000000  #speed of the physical port
+  a_facility: ABC
+  z_facility: 
+  z_provider_net: Level3 MPLS  #!!must already exist in NetBox
+
+cables: #cables only support termination types 'interface' or 'circuitterm'
+- name: cable   #not used, just a placeholder
+  type: mmf     #cat6, smf, mmf, mmf-om4, coaxial, power
+  color: 00ff00  #ffeb3b=yellow, RGB color in hexadecimal (e.g. 00ff00)
+  length: 10      #assumes unit is meters
+  status: planned       #active, planned, provisioning
+  termination_a_device: R1
+  termination_a_interface: Gi0/0
+  termination_b_device: 
+  termination_b_interface: 
+  circuit_id: 11.YYYY.123456..SW #if there is a circuit involved, specify circuit ID otherwise should be empty
+
+- name: cable   #not used, just a placeholder
+  type: mmf     #cat6, smf, mmf, mmf-om4, coaxial, power
+  color: 00ff00  #ffeb3b=yellow, RGB color in hexadecimal (e.g. 00ff00)
+  length: 10      #assumes unit is meters
+  status: planned       #active, planned, provisioning
+  termination_a_device: R1
+  termination_a_interface: Gi0/1
+  termination_b_device: R1
+  termination_b_interface:  Gi0/2
+  circuit_id:  #if there is a circuit involved, specify circuit ID otherwise should be empty

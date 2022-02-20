@@ -1,0 +1,234 @@
+---
+vars:
+  name: Site builder example 1
+  description: Build a new site with racks, devices, Interfaces, etc.
+  schema_verison: 1
+  debug: True
+  wipe: True
+  globals:
+  #used by the script as global variables
+    my_variable: my_value
+    #tenant: Bulk Import Testing  # optional tenant (applies to Site, Rack, Device, Circuit and Cable objects)
+    tenant:   # optional tenant (applies to Site, Rack, Device, Circuit and Cable objects)
+
+sites:
+- name: A101 Example Site
+  physical_address: 101 Main, Freedom, TX 71776
+  slug: a101
+  facility: A101
+  status: planned
+  racks:
+  - name: A.1
+    status: planned
+    type: 2-post-frame
+    width: 19
+    u_height: 45
+    role: IDF
+
+- name: A202 Example Site
+  physical_address: 202 Main, Freedom, TX 71776
+  slug:  # slug will auto generate if empty
+  facility: A202
+  status: planned
+  racks:
+  - name: A.1
+    status: planned
+    type: 2-post-frame
+    width: 19
+    u_height: 45
+    role: IDF
+
+devices:
+- name: A101.RTR.A
+  facility: A101
+  device_role: Router
+  manufacturer: Cisco
+  device_type: ISR 1111-8P
+  rack: A.1
+  position: 30
+  face: front
+  status: planned
+  interfaces:
+  - name: 1/1/1
+    type: 1000base-t  #common options: virtual, lag, 100base-tx, 1000base-t, 1000base-x-sfp, 10gbase-x-sfpp
+    lag:
+    parent:
+    mode: tagged      #tagged or access
+    untagged_vlan:    #can only be one vlan ID
+    tagged_vlans:     #list the vlan IDs
+    mtu: 1800
+    description: BLAH BLAH   # this should be auto-derived
+    mgmt_only: false  #true or false
+  - name: 2/2/2
+    type: 1000base-x-sfp  #common options: virtual, lag, 100base-tx, 1000base-t, 1000base-x-sfp, 10gbase-x-sfpp
+    lag:
+    parent:
+    mode: access      #tagged or access
+    untagged_vlan:    #can only be one vlan ID
+    tagged_vlans:     #list the vlan IDs
+    mtu: 5000
+    description: BLAH BLAH   # this should be auto-derived
+    mgmt_only: false  #true or false
+  - name: 3/3/3
+    type: 1000base-x-sfp  #common options: virtual, lag, 100base-tx, 1000base-t, 1000base-x-sfp, 10gbase-x-sfpp
+    lag:
+    parent:
+    mode: access      #tagged or access
+    untagged_vlan:    #can only be one vlan ID
+    tagged_vlans:     #list the vlan IDs
+    mtu: 1500
+    description: BLAH BLAH   # this should be auto-derived
+    mgmt_only: false  #true or false
+
+- name: A202.RTR.A
+  facility: A202
+  device_role: Router
+  manufacturer: Cisco
+  device_type: ISR 1111-8P
+  rack: A.1
+  position: 30
+  face: front
+  status: planned
+  interfaces:
+  - name: 1/1/1
+    type: 1000base-t  #common options: virtual, lag, 100base-tx, 1000base-t, 1000base-x-sfp, 10gbase-x-sfpp
+    lag:
+    parent:
+    mode: tagged      #tagged or access
+    untagged_vlan:    #can only be one vlan ID
+    tagged_vlans:     #list the vlan IDs
+    mtu: 1800
+    description: BLAH BLAH   # this should be auto-derived
+    mgmt_only: false  #true or false
+  - name: 2/2/2
+    type: 1000base-x-sfp  #common options: virtual, lag, 100base-tx, 1000base-t, 1000base-x-sfp, 10gbase-x-sfpp
+    lag:
+    parent:
+    mode: access      #tagged or access
+    untagged_vlan:    #can only be one vlan ID
+    tagged_vlans:     #list the vlan IDs
+    mtu: 5000
+    description: BLAH BLAH   # this should be auto-derived
+    mgmt_only: false  #true or false
+  - name: 3/3/3
+    type: 1000base-x-sfp  #common options: virtual, lag, 100base-tx, 1000base-t, 1000base-x-sfp, 10gbase-x-sfpp
+    lag:
+    parent:
+    mode: access      #tagged or access
+    untagged_vlan:    #can only be one vlan ID
+    tagged_vlans:     #list the vlan IDs
+    mtu: 1500
+    description: BLAH BLAH   # this should be auto-derived
+    mgmt_only: false  #true or false
+
+circuits:
+# service provider supported "circuits"
+# for a point-to-point circuit specify only a_facility & z_facility
+# for a multipoint (ie MPLS/Internet) specify only a_facility & z_provider_net
+- cid: 11.XXXX.123456..SW      #put circuit ID here
+  provider: AT&T      #!!must already exist in NetBox
+  type: Point-to-point  #!!must already exist in NetBox
+  status: planned       #active, planned, provisioning
+  commit_rate: 10000000 #committed bandwidth of the circuit
+  port_speed: 10000000  #speed of the physical port
+  a_facility: A101
+  z_facility: A202
+  z_provider_net:
+
+- cid: 33.XXXX.123456..SW      #put circuit ID here
+  provider: Level 3
+  type: MPLS       
+  status: planned       #active, planned, provisioning
+  commit_rate: 1000000 #committed bandwidth of the circuit
+  port_speed: 1000000  #speed of the physical port
+  a_facility: A101
+  z_facility: 
+  z_provider_net: Level3 MPLS
+
+- cid: 33.YYYY.123456..SW      #put circuit ID here
+  provider: Level 3
+  type: MPLS       #circuit type usually 'Ethernet'
+  status: planned       #active, planned, provisioning
+  commit_rate: 1000000 #committed bandwidth of the circuit
+  port_speed: 1000000  #speed of the physical port
+  a_facility: A202
+  z_facility: 
+  z_provider_net: Level3 MPLS
+
+
+
+cables: #cables only support termination types 'interface' or 'circuitterm'
+- name: cable   #not used, just a placeholder
+  type: smf     #cat6, smf, mmf, mmf-om4, coaxial, power
+  color: 00ff00  #ffeb3b=yellow, RGB color in hexadecimal (e.g. 00ff00)
+  length: 2000      #assumes unit is meters
+  status: planned       #active, planned, provisioning
+  termination_a_device: A101.RTR.A
+  termination_a_interface: 1/1/1
+  termination_b_device: A202.RTR.A
+  termination_b_interface: 1/1/1
+  circuit_id:   #if there is a circuit involved, specify circuit ID otherwise should be empty
+
+- name: cable   #not used, just a placeholder
+  type: smf     #cat6, smf, mmf, mmf-om4, coaxial, power
+  color: ffeb3b  #ffeb3b=yellow, RGB color in hexadecimal (e.g. 00ff00)
+  length: 2      #assumes unit is meters
+  status: planned       #active, planned, provisioning
+  termination_a_device: A101.RTR.A
+  termination_a_interface: 2/2/2
+  termination_b_device: A202.RTR.A
+  termination_b_interface: 2/2/2
+  circuit_id: 11.XXXX.123456..SW #if there is a circuit involved, specify circuit ID otherwise should be empty
+
+
+- name: cable   #not used, just a placeholder
+  type: smf     #cat6, smf, mmf, mmf-om4, coaxial, power
+  color: ffeb3b  #ffeb3b=yellow, RGB color in hexadecimal (e.g. 00ff00)
+  length: 2      #assumes unit is meters
+  status: planned       #active, planned, provisioning
+  termination_a_device: A101.RTR.A
+  termination_a_interface: 3/3/3
+  termination_b_device: 
+  termination_b_interface: 
+  circuit_id: 33.XXXX.123456..SW #if there is a circuit involved, specify circuit ID otherwise should be empty  
+
+- name: cable   #not used, just a placeholder
+  type: smf     #cat6, smf, mmf, mmf-om4, coaxial, power
+  color: ffeb3b  #ffeb3b=yellow, RGB color in hexadecimal (e.g. 00ff00)
+  length: 2      #assumes unit is meters
+  status: planned       #active, planned, provisioning
+  termination_a_device: A202.RTR.A
+  termination_a_interface: 3/3/3
+  termination_b_device: 
+  termination_b_interface: 
+  circuit_id: 33.YYYY.123456..SW #if there is a circuit involved, specify circuit ID otherwise should be empty
+
+
+
+
+
+# these can all be deleted, only for reference
+# Import Value 	    Label
+# cat3 	            CAT3
+# cat5 	            CAT5
+# cat5e 	          CAT5e
+# cat6 	            CAT6
+# cat6a 	          CAT6a
+# cat7 	            CAT7
+# cat7a 	          CAT7a
+# cat8 	            CAT8
+# dac-active 	      Direct Attach Copper (Active)
+# dac-passive 	    Direct Attach Copper (Passive)
+# mrj21-trunk 	    MRJ21 Trunk
+# coaxial 	        Coaxial
+# mmf 	            Multimode Fiber
+# mmf-om1         	Multimode Fiber (OM1)
+# mmf-om2         	Multimode Fiber (OM2)
+# mmf-om3         	Multimode Fiber (OM3)
+# mmf-om4         	Multimode Fiber (OM4)
+# mmf-om5         	Multimode Fiber (OM5)
+# smf 	            Singlemode Fiber
+# smf-os1          	Singlemode Fiber (OS1)
+# smf-os2 	        Singlemode Fiber (OS2)
+# aoc 	            Active Optical Cabling (AOC)
+# power 	          Power
