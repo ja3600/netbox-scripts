@@ -10,15 +10,8 @@ import pandas as pd
     
     Example CSV format:
         Site ID,Site Name,Interface Name,IP Address,Prefix Length,IP Address Type,Object Type
-        192.168.51.247,ODCX7750A,VZ-TEST,1.1.1.1,32,IPv4,VPRN  L 3   Access  Interface
-        192.168.51.249,WEDO7750A,VZ-TEST,1.1.1.2,32,IPv4,VPRN  L 3   Access  Interface
-        192.168.51.246,ODCX7750B,management,10.10.10.3,28,IPv4,Network  Interface
-        192.168.51.247,ODCX7750A,ATT-EPS,10.11.7.130,30,IPv4,VPRN  L 3   Access  Interface
-        192.168.51.249,WEDO7750A,ATT-EPS,10.11.7.134,30,IPv4,VPRN  L 3   Access  Interface
-        192.168.51.162,TGMX-R-LAB,EPS-METER,10.11.9.1,29,IPv4,VPRN  L 3   Access  Interface
-
-    This script can easily be adjusted to handle similar data from other tools.
-    
+        192.168.1.1,router1,VZ-TEST,1.1.1.1,32,IPv4,VPRN  L 3   Access  Interface
+  
 '''
 
 

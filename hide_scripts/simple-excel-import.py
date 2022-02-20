@@ -5,7 +5,7 @@ from extras.scripts import *
 class MyScript(Script):
     
     class Meta:
-        name = "Simple Excel Import"
+        name = "Excel 2-column Import"
         description = "Import cut and paste of two columns from Excel."
         field_order = ['field', 'text']
         commit_default = False
@@ -23,7 +23,7 @@ class MyScript(Script):
     )
 
     text_in = TextVar(
-        description=f"Paste in 2-column data from Excel (example: device and serial)",
+        description=f"Paste in 2 columns of data from Excel (example: col1=device, col2=serial)",
         required=True,
     )
 
@@ -88,5 +88,3 @@ class MyScript(Script):
 
         else:
             self.log_failure("Number of objects and values must match.")
-
-

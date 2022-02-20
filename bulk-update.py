@@ -5,8 +5,8 @@ from extras.scripts import *
 class MyScript(Script):
     
     class Meta:
-        name = "Update Devices"
-        description = "Quick method to update one field of a list of devices."
+        name = "Bulk Update Fields"
+        description = "Quick method to update one field of an object."
         field_order = ['object_model', 'list_of_objects', 'List_of_values', 'field']
         commit_default = False
 
@@ -14,6 +14,8 @@ class MyScript(Script):
         ('Device-serial', 'Device-serial'),
         ('Device-asset_tag', 'Device-asset_tag'),
         ('Device-platform', 'Device-platform'),
+        ('Site-ASN', 'Site-ASN'),
+
     )
     field = ChoiceVar(
         description="What model-field to update?",
@@ -73,6 +75,17 @@ class MyScript(Script):
                     value = value_list[i].strip()
                     my_object = Device.objects.get(name=name)
                     my_object.platform = value
+                    my_object.save()
+                    self.log_success(f"Updated {u_field} field in {name} to {value}")
+
+            # note this is limited to just adding one ASN at a time, ASN must already exist in NetBox
+            elif u_field == 'Site-ASN':
+                for i in range(len(object_list)):
+                    name = object_list[i].strip()
+                    value = value_list[i].strip()
+                    asn = ASN.objects.get(asn=value)
+                    my_object = Site.objects.get(name=name)
+                    my_object.asns.set([asn.id])
                     my_object.save()
                     self.log_success(f"Updated {u_field} field in {name} to {value}")
 
