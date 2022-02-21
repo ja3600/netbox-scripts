@@ -124,7 +124,7 @@ devices:
 circuits:
 # service provider supported "circuits"
 # for a point-to-point circuit specify only a_facility & z_facility
-# for a multipoint (ie MPLS/Internet) specify only a_facility & z_provider_net
+# for a multipoint (ie MPLS/Internet) specify only z_facility & provider_net
 - cid: 11.XXXX.123456..SW      #put circuit ID here
   provider: AT&T      #!!must already exist in NetBox
   type: Point-to-point  #!!must already exist in NetBox
@@ -133,7 +133,7 @@ circuits:
   port_speed: 10000000  #speed of the physical port
   a_facility: A101
   z_facility: A202
-  z_provider_net:
+  provider_net:  
 
 - cid: 33.XXXX.123456..SW      #put circuit ID here
   provider: Level 3
@@ -141,9 +141,9 @@ circuits:
   status: planned       #active, planned, provisioning
   commit_rate: 1000000 #committed bandwidth of the circuit
   port_speed: 1000000  #speed of the physical port
-  a_facility: A101
-  z_facility: 
-  z_provider_net: Level3 MPLS
+  a_facility: 
+  z_facility: A101
+  provider_net: Level3 MPLS # provider is assumed to be on the A side
 
 - cid: 33.YYYY.123456..SW      #put circuit ID here
   provider: Level 3
@@ -151,9 +151,9 @@ circuits:
   status: planned       #active, planned, provisioning
   commit_rate: 1000000 #committed bandwidth of the circuit
   port_speed: 1000000  #speed of the physical port
-  a_facility: A202
-  z_facility: 
-  z_provider_net: Level3 MPLS
+  a_facility: 
+  z_facility: A202
+  provider_net: Level3 MPLS  # provider is assumed to be on the A side
 
 
 

@@ -36,7 +36,7 @@ from utilities.forms.utils import expand_alphanumeric_pattern
 
 
 #usually this would point to the netbox scripts directory
-YAML_PATH = "/opt/netbox/netbox/scripts/"
+YAML_PATH = "/opt/netbox-scripts/"
 DEFAULT_YAML_FILE = "example_1.yaml"
 
 # the YAML document schema tested and working with the above script version
@@ -251,47 +251,47 @@ class SiteBuilder(Script):
             )
             circuit.save()
 
-            #get the A side for circuit termination, this must be a site
-            a_facility = Site.objects.get(facility=data['a_facility'])
+            #get the Z side for circuit termination, this must be a site
+            z_facility = Site.objects.get(facility=data['z_facility'])
 
-            #build the A-side circuit termination
-            a_cterm = CircuitTermination(
+            #build the Z-side circuit termination
+            z_cterm = CircuitTermination(
                 circuit=Circuit.objects.get(cid=data['cid']),
-                term_side='A',
-                site=a_facility,
+                term_side='Z',
+                site=z_facility,
                 #provider_network='',
                 port_speed=data['port_speed'],
                 description=''
             )
-            a_cterm.save()
+            z_cterm.save()
 
-            #get the Z side for circuit termination, this can be a site or provider network
-            if data['z_facility'] != None :
-                z_facility = Site.objects.get(facility=data['z_facility'])
+            #get the A side for circuit termination, this can be a site or provider network
+            if data['a_facility'] != None :
+                a_facility = Site.objects.get(facility=data['a_facility'])
 
-                # build the Z-side circuit termination (this is a point-to-point)
-                z_cterm = CircuitTermination(
+                # build the A-side circuit termination (this is a point-to-point)
+                a_cterm = CircuitTermination(
                     circuit=Circuit.objects.get(cid=data['cid']),
-                    term_side='Z',
-                    site=z_facility,
+                    term_side='A',
+                    site=a_facility,
                     port_speed=data['port_speed'],
                     description=''
                 )
-                z_cterm.save()                
+                a_cterm.save()                
             
-            if data['z_provider_net'] != None :
-                z_provider_net = ProviderNetwork.objects.get(name=data['z_provider_net'])
+            if data['provider_net'] != None :
+                provider_net = ProviderNetwork.objects.get(name=data['provider_net'])
 
-                #build the A-side circuit termination (this is a multi-point)
-                z_cterm = CircuitTermination(
+                #build the A-side circuit termination for MPLS/Multi-point (provider is always the A side)
+                a_cterm = CircuitTermination(
                     circuit=Circuit.objects.get(cid=data['cid']),
-                    term_side='Z',
-                    provider_network=z_provider_net,
+                    term_side='A',
+                    provider_network=provider_net,
                     port_speed=data['port_speed'],
                     description=''
                     
                 )
-                z_cterm.save()
+                a_cterm.save()
 
             self.log_success(f"Created circuit {circuit}")
             return 
