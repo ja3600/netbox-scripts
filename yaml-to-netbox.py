@@ -35,7 +35,7 @@ from utilities.forms.constants import ALPHANUMERIC_EXPANSION_PATTERN
 from utilities.forms.utils import expand_alphanumeric_pattern
 
 
-#usually this would point to the netbox scripts directory
+#specify the path for a default yaml document, mainly for testing
 YAML_PATH = "/opt/netbox-scripts/"
 DEFAULT_YAML_FILE = "example_1.yaml"
 

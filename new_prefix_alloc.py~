@@ -1,0 +1,128 @@
+from django.utils.text import slugify
+
+from ipam.models import Prefix, IPAddress
+from dcim.models import Site
+from tenancy.models import Tenant
+
+from dcim.choices import *
+from ipam.choices import *
+from extras.scripts import *
+
+import netaddr
+
+
+CIDR_RangeStart = 30
+CIDR_RangeEnd = 22
+
+
+class MyCustScript(Script):
+
+    class Meta:
+        name = "Allocate Prefixes"
+        description = "calculates and generates child prefixes space from a parent prefix"
+        field_order = ['site_count','ip_count','ip_reserved','vlan_role','vlan_id','tenant']
+        commit_default = False
+
+    site_count = IntegerVar(
+        description = "Max # of sites"
+    )
+    ip_count = IntegerVar(
+        description = "Max # of IP addresses per site for this vlan",
+        label="VLAN IP Count"
+    )
+    ip_reserved = IntegerVar(
+        description = "# of IP addresses reserved for the net infra, such as the router/gateway IP",
+        default = 3,
+        label="IPs to Reserve"        
+    )
+    vlan_id = StringVar(
+        description = "Enter VLAN ID"
+    )
+    vlan_role = StringVar(
+        description = "Vlan purpose/role (keep it short)"
+    )
+    tenant = ObjectVar(
+        description ="Tenant",
+        model=Tenant,
+    )
+    parent_prefix = ObjectVar(
+        description ="Choose parent prefix",
+        model=Prefix,
+        query_params = {
+            'tenant_id': '$tenant'
+        }
+    )
+
+    def run(self, data, commit):
+
+
+        # Setting mask to a /24-30 should work.  /31 is not supported with netaddr module.
+        list_of_subnets = []
+        PARENT_PREFIX = data['parent_prefix']
+        TENANT = data['tenant']
+        ROLE = data['vlan_role']
+                
+        subtotal_ip_count = data['ip_count'] + data['ip_reserved']
+
+        if subtotal_ip_count > 1024:
+            self.log_failure("IP Count must be less than 1024")
+            return
+
+        # figure out the required per site subnet/vlan mask        
+        for mask in range(CIDR_RangeStart, CIDR_RangeEnd, -1):
+            network_string = '0.0.0.0/' + str(mask)
+            network_len = len(netaddr.IPNetwork(network_string))
+            #self.log_debug(f"mask={mask}  len={network_len}")
+            if subtotal_ip_count < network_len:
+                self.log_success(f"For {subtotal_ip_count} IPs the required mask is /{mask}")
+                break  # no need to loop anymore, as mask size was found
+ 
+        # add up how many IPs are needed based on network length calulated above
+        addys_required = data['site_count'] * network_len
+        
+        self.log_info(f"Total address space required = {addys_required}")
+        self.log_info(f"Parent prefix to be used = {PARENT_PREFIX}")
+
+        # grab the parent prefix and assign to the working prefix varible "prefix"
+        try:
+            prefix = PARENT_PREFIX
+        except:
+            self.log_failure("Can't find any prefixes or some other error!")
+            return
+        
+        # available_ips = iter(prefix.get_available_ips())
+
+        avail_cidrs = prefix.get_available_prefixes()
+        self.log_info(f"Available cidrs {avail_cidrs}.")
+
+        found_cidr = False
+        for new_cidr in avail_cidrs.iter_cidrs():
+            #self.log_info(f"Looping {new_cidr} len={len(netaddr.IPNetwork(new_cidr))} need={addys_required}.")
+            if addys_required <= len(netaddr.IPNetwork(new_cidr)):
+                self.log_info(f"Adequate address space exists in this cidr {new_cidr}.")
+                found_cidr = True
+                break
+            else:
+                pass
+                #self.log_warning("This prefix too little, looking for another one.")
+        
+        if found_cidr:
+            # build a list of Subnets 
+            
+            # need to get subnets to assign to interfaces, so iterate through the
+            # available prefix and build a list of /n defined by MASK variable)
+            # this creates a list of subnets of type IPNetwork('2.11.128.0/n')
+            # Note: there is a limitation of netaddr as it cannot suport /31s
+
+            for subnet in new_cidr.subnet(int(mask)):
+                list_of_subnets.append(subnet)
+         
+            self.log_info(f"{mask} Subnets: {list_of_subnets}")
+
+            # Use this varible to index list_of_subnets[subnet_index]
+            subnet_index = 0
+        else:
+            self.log_failure("Could not find any suitable prefix for this requirement,\
+                Please contact the network team (mnsdata@oncor.com).")
+
+        return
