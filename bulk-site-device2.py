@@ -76,7 +76,7 @@ class MyCustScript(Script):
         required = False
     )
     device_model = ObjectVar(
-        default = DeviceType.objects.get(model='C9200-48P'),
+        # default = DeviceType.objects.get(model='C9200-48P'),
         description ="device model",
         model=DeviceType,
         #display_field = 'model',
@@ -85,7 +85,7 @@ class MyCustScript(Script):
         }
     )
     device_role = ObjectVar(
-        default = DeviceRole.objects.get(name='Access Switch'),
+        # default = DeviceRole.objects.get(name='Access Switch'),
         description = "Device role",
         model = DeviceRole,
         #display_field = 'name',
